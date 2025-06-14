@@ -24,9 +24,10 @@ async function registerUser(req, res) {
 
     // Insertar usuario
     const result = await db.query(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
-      [name, email, hashedPassword]
+      'INSERT INTO users (name, email, password, briefs_available) VALUES ($1, $2, $3, $4) RETURNING id, name, email',
+      [name, email, hashedPassword, 0] // le das 0 briefs por defecto
     );
+
 
     res.status(201).json({ user: result.rows[0], message: 'Usuario registrado' });
   } catch (error) {

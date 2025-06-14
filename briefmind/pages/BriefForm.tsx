@@ -32,7 +32,14 @@ interface BriefFormData {
 }
 
 const tonesOptions = ["Formal", "Cercano", "Inspirador", "Técnico", "Divertido"];
-const channelsOptions = ["Instagram", "Facebook", "Email", "Google Ads", "LinkedIn", "Web"];
+const channelsOptions = [
+  "Instagram",
+  "Facebook",
+  "Email",
+  "Google Ads",
+  "LinkedIn",
+  "Web",
+];
 const deliverablesOptions = ["Posts", "Videos", "Newsletters", "Infografías"];
 
 const initialData: BriefFormData = {
@@ -69,17 +76,25 @@ const initialData: BriefFormData = {
 export default function ProjectBriefForm() {
   const [form, setForm] = useState<BriefFormData>(initialData);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [step, setStep] = useState(0);
   const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
+    // Carga borrador si existe
     const saved = localStorage.getItem("briefmind_draft");
     if (saved) setForm(JSON.parse(saved));
+
+    // Carga usuario y id (ajusta a tu lógica de sesión)
     const loggedUserName = localStorage.getItem("user_name");
     if (loggedUserName) setUserName(loggedUserName);
+
+    const savedUserId = localStorage.getItem("user_id");
+    if (savedUserId) setUserId(Number(savedUserId));
   }, []);
 
   useEffect(() => {
+    // Guarda borrador localmente
     localStorage.setItem("briefmind_draft", JSON.stringify(form));
   }, [form]);
 
@@ -124,98 +139,138 @@ export default function ProjectBriefForm() {
     alert("Borrador guardado localmente.");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Formulario enviado:", form);
-    alert("Brief enviado (simulación).");
-    localStorage.removeItem("briefmind_draft");
+
+    if (!userId) {
+      alert("Debes iniciar sesión para enviar el brief.");
+      return;
+    }
+
+    const payload = {
+      user_id: userId,
+      client_name: form.clientName,
+      project_name: form.projectName,
+      start_date: form.startDate,
+      delivery_date: form.deliveryDate,
+      website: form.website,
+      main_goal: form.mainGoal,
+      secondary_goals: form.secondaryGoals,
+      current_situation: form.currentSituation,
+      challenges: form.challenges,
+      target_audience: form.targetAudience,
+      audience_needs: form.audienceNeeds,
+      main_message: form.mainMessage,
+      differentiation: form.differentiation,
+      tone: form.tone,
+      channels: form.channels,
+      deliverable_formats: form.deliverableFormats,
+      expected_deliverables: form.expectedDeliverables,
+      limitations: form.limitations,
+      competitors: form.competitors,
+      reference_links: form.references,
+      budget: form.budget,
+      resources: form.resources,
+      milestones: form.milestones,
+      deadlines: form.deadlines,
+      restrictions: form.restrictions,
+      notes: form.notes,
+      branding_links: form.brandingLinks,
+      final_format: form.finalFormat,
+    };
+
+    try {
+      const response = await fetch("http://localhost:5000/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        alert("Brief enviado correctamente.");
+        localStorage.removeItem("briefmind_draft");
+        setForm(initialData);
+        setStep(0);
+      } else {
+        const err = await response.json();
+        alert(err.message || "Error al enviar el brief.");
+      }
+    } catch (error) {
+      alert("Error de conexión. Intenta de nuevo.");
+    }
   };
 
+  // Pasos del formulario
   const steps = [
     {
-      title: "Información Básica",
+      title: "Información General",
       content: (
         <>
           <Input
-            label="Nombre del cliente o empresa *"
+            label="Nombre del cliente"
             name="clientName"
             value={form.clientName}
             onChange={handleChange}
-            placeholder="Ej: ACME Corp"
             required
           />
           <Input
-            label="Nombre del proyecto *"
+            label="Nombre del proyecto"
             name="projectName"
             value={form.projectName}
             onChange={handleChange}
-            placeholder="Ej: Campaña verano 2025"
             required
           />
-          <div className="grid grid-cols-2 gap-6">
-            <Input
-              type="date"
-              label="Fecha de inicio *"
-              name="startDate"
-              value={form.startDate}
-              onChange={handleChange}
-              required
-            />
-            <Input
-              type="date"
-              label="Fecha de entrega prevista *"
-              name="deliveryDate"
-              value={form.deliveryDate}
-              onChange={handleChange}
-              required
-            />
-          </div>
           <Input
-            type="url"
-            label="Sitio web o redes sociales relevantes"
+            label="Fecha de inicio"
+            name="startDate"
+            type="date"
+            value={form.startDate}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            label="Fecha de entrega"
+            name="deliveryDate"
+            type="date"
+            value={form.deliveryDate}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            label="Sitio web"
             name="website"
+            type="url"
             value={form.website}
             onChange={handleChange}
-            placeholder="https://"
           />
         </>
       ),
     },
     {
-      title: "Objetivos del Proyecto",
+      title: "Objetivos y situación",
       content: (
         <>
           <Textarea
-            label="Objetivo principal del proyecto *"
+            label="Objetivo principal"
             name="mainGoal"
             value={form.mainGoal}
             onChange={handleChange}
-            placeholder="Ej: aumentar ventas, lanzar producto, mejorar branding."
             required
           />
           <Textarea
-            label="Objetivos secundarios o específicos (opcional)"
+            label="Objetivos secundarios"
             name="secondaryGoals"
             value={form.secondaryGoals}
             onChange={handleChange}
           />
-        </>
-      ),
-    },
-    {
-      title: "Situación Actual / Contexto",
-      content: (
-        <>
           <Textarea
-            label="Describe brevemente la situación actual del negocio o proyecto *"
+            label="Situación actual"
             name="currentSituation"
             value={form.currentSituation}
             onChange={handleChange}
-            placeholder="Ej: Tenemos un ecommerce con bajo tráfico."
-            required
           />
           <Textarea
-            label="Problemas o retos actuales"
+            label="Desafíos"
             name="challenges"
             value={form.challenges}
             onChange={handleChange}
@@ -224,63 +279,49 @@ export default function ProjectBriefForm() {
       ),
     },
     {
-      title: "Público Objetivo",
+      title: "Audiencia y mensaje",
       content: (
         <>
           <Textarea
-            label="¿Quién es el público objetivo? *"
+            label="Audiencia objetivo"
             name="targetAudience"
             value={form.targetAudience}
             onChange={handleChange}
-            placeholder="Datos demográficos, intereses, hábitos, ubicación."
-            required
           />
           <Textarea
-            label="¿Qué necesidades o problemas tiene este público? *"
+            label="Necesidades de la audiencia"
             name="audienceNeeds"
             value={form.audienceNeeds}
             onChange={handleChange}
-            required
           />
-        </>
-      ),
-    },
-    {
-      title: "Mensaje y Propuesta de Valor",
-      content: (
-        <>
           <Textarea
-            label="¿Cuál es el mensaje principal que quieres comunicar? *"
+            label="Mensaje principal"
             name="mainMessage"
             value={form.mainMessage}
             onChange={handleChange}
-            placeholder="Ej: Innovación, calidad, precio, experiencia."
-            required
           />
           <Textarea
-            label="¿Cómo se diferencia tu producto o servicio? *"
+            label="Diferenciación"
             name="differentiation"
             value={form.differentiation}
             onChange={handleChange}
-            required
           />
           <Select
-            label="Tono de comunicación *"
+            label="Tono"
             name="tone"
             value={form.tone}
             onChange={handleChange}
             options={tonesOptions}
-            required
           />
         </>
       ),
     },
     {
-      title: "Canales y Entregables",
+      title: "Canales y entregables",
       content: (
         <>
           <CheckboxGroup
-            label="Canales de difusión"
+            label="Canales"
             name="channels"
             options={channelsOptions}
             selected={form.channels}
@@ -294,94 +335,83 @@ export default function ProjectBriefForm() {
             onChange={handleChange}
           />
           <Textarea
-            label="Entregables esperados y formato final"
+            label="Entregables esperados"
             name="expectedDeliverables"
             value={form.expectedDeliverables}
             onChange={handleChange}
-            placeholder="Describe qué se espera recibir y en qué formato."
+          />
+          <Textarea
+            label="Limitaciones"
+            name="limitations"
+            value={form.limitations}
+            onChange={handleChange}
           />
         </>
       ),
     },
     {
-      title: "Restricciones y Recursos",
+      title: "Otros detalles",
       content: (
         <>
           <Textarea
-            label="Restricciones o limitaciones del proyecto"
-            name="limitations"
-            value={form.limitations}
-            onChange={handleChange}
-          />
-          <Textarea
-            label="Competidores principales"
+            label="Competidores"
             name="competitors"
             value={form.competitors}
             onChange={handleChange}
           />
           <Textarea
-            label="Referencias o ejemplos que te gusten"
+            label="Enlaces de referencia"
             name="references"
             value={form.references}
             onChange={handleChange}
           />
           <Input
-            label="Presupuesto aproximado"
+            label="Presupuesto"
             name="budget"
             value={form.budget}
             onChange={handleChange}
-            placeholder="Ej: 1000 USD"
           />
           <Textarea
-            label="Recursos disponibles o equipo"
+            label="Recursos"
             name="resources"
             value={form.resources}
             onChange={handleChange}
           />
-        </>
-      ),
-    },
-    {
-      title: "Cronograma y Notas",
-      content: (
-        <>
           <Textarea
-            label="Hitos o fechas clave"
+            label="Hitos"
             name="milestones"
             value={form.milestones}
             onChange={handleChange}
           />
-          <Textarea
-            label="Plazos definitivos"
+          <Input
+            label="Fechas límite"
             name="deadlines"
             value={form.deadlines}
             onChange={handleChange}
           />
           <Textarea
-            label="Restricciones adicionales"
+            label="Restricciones"
             name="restrictions"
             value={form.restrictions}
             onChange={handleChange}
           />
           <Textarea
-            label="Notas adicionales"
+            label="Notas"
             name="notes"
             value={form.notes}
             onChange={handleChange}
           />
           <Input
-            label="Enlaces de branding o identidad visual"
+            label="Enlaces de branding"
             name="brandingLinks"
             value={form.brandingLinks}
             onChange={handleChange}
-            placeholder="URLs, Dropbox, Google Drive, etc."
           />
           <Input
-            label="Formato final requerido"
+            label="Formato final"
             name="finalFormat"
             value={form.finalFormat}
             onChange={handleChange}
-            placeholder="Ej: PDF, PPT, Video, etc."
           />
         </>
       ),
@@ -389,13 +419,14 @@ export default function ProjectBriefForm() {
   ];
 
   return (
-    <div className="min-h-screen #132d81">
-      <header className="max-w-4xl mx-auto mt-12 mb-8 text-center text-white-900">
+    <div className="min-h-screen bg-[#132d81] p-4">
+      <header className="max-w-4xl mx-auto mt-12 mb-8 text-center text-white">
         <h1 className="text-4xl font-extrabold mb-2">
           {userName ? `¡Hola, ${userName}!` : "¡Hola! Crea tu brief aquí"}
         </h1>
         <p className="text-lg">
-          Completa el formulario para generar un brief de proyecto claro y profesional.
+          Completa el formulario para generar un brief de proyecto claro y
+          profesional.
         </p>
       </header>
       <main className="flex-1 max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-2xl transition-all duration-300">
@@ -404,7 +435,9 @@ export default function ProjectBriefForm() {
         </h2>
         <form
           onSubmit={handleSubmit}
-          className={`flex flex-col gap-6 ${animating ? "opacity-50 pointer-events-none" : ""}`}
+          className={`flex flex-col gap-6 ${
+            animating ? "opacity-50 pointer-events-none" : ""
+          }`}
         >
           {steps[step].content}
           <div className="flex justify-between mt-4">
@@ -455,30 +488,33 @@ function Input({
   value,
   onChange,
   type = "text",
-  placeholder,
   required = false,
 }: {
   label: string;
-  name: string;
+  name: keyof BriefFormData;
   value: string;
   onChange: (e: React.ChangeEvent<any>) => void;
   type?: string;
-  placeholder?: string;
   required?: boolean;
 }) {
   return (
-    <label className="block text-blue-900 font-semibold">
-      {label}
+    <div className="flex flex-col">
+      <label
+        htmlFor={name}
+        className="mb-1 text-gray-700 font-semibold"
+      >
+        {label}
+      </label>
       <input
-        type={type}
+        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        id={name}
         name={name}
+        type={type}
         value={value}
         onChange={onChange}
-        placeholder={placeholder}
         required={required}
-        className="mt-2 w-full rounded-lg px-4 py-3 text-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-70 transition shadow-md"
       />
-    </label>
+    </div>
   );
 }
 
@@ -487,31 +523,32 @@ function Textarea({
   name,
   value,
   onChange,
-  placeholder,
   required = false,
-  rows = 4,
 }: {
   label: string;
-  name: string;
+  name: keyof BriefFormData;
   value: string;
   onChange: (e: React.ChangeEvent<any>) => void;
-  placeholder?: string;
   required?: boolean;
-  rows?: number;
 }) {
   return (
-    <label className="block text-gray-900 font-semibold">
-      {label}
+    <div className="flex flex-col">
+      <label
+        htmlFor={name}
+        className="mb-1 text-gray-700 font-semibold"
+      >
+        {label}
+      </label>
       <textarea
+        className="border border-gray-300 rounded px-3 py-2 resize-y focus:outline-none focus:ring-2 focus:ring-blue-600"
+        id={name}
         name={name}
+        rows={4}
         value={value}
         onChange={onChange}
-        placeholder={placeholder}
         required={required}
-        rows={rows}
-        className="mt-2 w-full rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-70 transition shadow-md resize-y"
       />
-    </label>
+    </div>
   );
 }
 
@@ -521,35 +558,36 @@ function Select({
   value,
   onChange,
   options,
-  required = false,
 }: {
   label: string;
-  name: string;
+  name: keyof BriefFormData;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: string[];
-  required?: boolean;
 }) {
   return (
-    <label className="block text-gray-900 font-semibold">
-      {label}
+    <div className="flex flex-col">
+      <label
+        htmlFor={name}
+        className="mb-1 text-gray-700 font-semibold"
+      >
+        {label}
+      </label>
       <select
+        id={name}
         name={name}
+        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
         value={value}
         onChange={onChange}
-        required={required}
-        className="mt-2 w-full rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-70 transition shadow-md"
       >
-        <option value="" disabled>
-          Selecciona una opción
-        </option>
+        <option value="">Selecciona</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>
             {opt}
           </option>
         ))}
       </select>
-    </label>
+    </div>
   );
 }
 
@@ -561,26 +599,29 @@ function CheckboxGroup({
   onChange,
 }: {
   label: string;
-  name: string;
+  name: keyof BriefFormData;
   options: string[];
   selected: string[];
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <fieldset className="text-gray-900 font-semibold">
-      <legend>{label}</legend>
-      <div className="mt-2 flex flex-wrap gap-4">
+    <fieldset>
+      <legend className="mb-2 font-semibold text-gray-700">{label}</legend>
+      <div className="flex flex-wrap gap-4">
         {options.map((opt) => (
-          <label key={opt} className="flex items-center gap-2 cursor-pointer">
+          <label
+            key={opt}
+            className="inline-flex items-center cursor-pointer select-none"
+          >
             <input
               type="checkbox"
               name={name}
               value={opt}
               checked={selected.includes(opt)}
               onChange={onChange}
-              className="h-5 w-5 rounded border-gray-400 text-gray-600 focus:ring-gray-400"
+              className="form-checkbox h-5 w-5 text-blue-600"
             />
-            <span>{opt}</span>
+            <span className="ml-2">{opt}</span>
           </label>
         ))}
       </div>

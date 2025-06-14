@@ -56,6 +56,7 @@ export default function LoginRegister() {
         setMessage(`Bienvenido ${data.user.name}`);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user_name', data.user.name);
+        localStorage.setItem('user_id', data.user.id);
         router.push('/BriefForm');
       } else {
         const data = await registerUser(name, email, password);
