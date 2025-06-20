@@ -77,6 +77,8 @@ export default function ProjectBriefForm() {
   const [form, setForm] = useState<BriefFormData>(initialData);
   const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
+  const [userBrief, setUserBrief] = useState<number | null>(null);
+  const [userPlan, setUserPlan] = useState<string | null>(null);
   const [step, setStep] = useState(0);
   const [animating, setAnimating] = useState(false);
 
@@ -91,6 +93,13 @@ export default function ProjectBriefForm() {
 
     const savedUserId = localStorage.getItem("user_id");
     if (savedUserId) setUserId(Number(savedUserId));
+
+    const savedUserBrief = localStorage.getItem("user_brief");
+    if (savedUserBrief) setUserBrief(Number(savedUserBrief));
+
+    const savedUserBriefPlan = localStorage.getItem("subscription_plan");
+    if (savedUserBriefPlan) setUserPlan(savedUserBriefPlan);
+
   }, []);
 
   useEffect(() => {
@@ -420,15 +429,33 @@ export default function ProjectBriefForm() {
 
   return (
     <div className="min-h-screen bg-[#132d81] p-4">
-      <header className="max-w-4xl mx-auto mt-12 mb-8 text-center text-white">
-        <h1 className="text-4xl font-extrabold mb-2">
-          {userName ? `¡Hola, ${userName}!` : "¡Hola! Crea tu brief aquí"}
+      <header className="max-w-4xl mx-auto mt-16 mb-12 text-center text-white px-4">
+        <h1 className="text-5xl font-extrabold mb-4 leading-tight">
+          {userName ? `¡Bienvenido, ${userName}!` : "¡Hola! Comienza a crear tu brief"}
         </h1>
-        <p className="text-lg">
-          Completa el formulario para generar un brief de proyecto claro y
-          profesional.
+
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-lg text-gray-300 mt-4">
+          {typeof userBrief !== "undefined" && (
+            <div className="bg-[#1e2a47] px-5 py-3 rounded-xl shadow-md border border-cyan-500">
+              <span className="font-semibold text-white">Briefs restantes:</span>{" "}
+              {userBrief}
+            </div>
+          )}
+
+          {userPlan && (
+            <div className="bg-[#1e2a47] px-5 py-3 rounded-xl shadow-md border border-cyan-500">
+              <span className="font-semibold text-white">Plan actual:</span>{" "}
+              {userPlan}
+            </div>
+          )}
+        </div>
+
+        <p className="mt-6 text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
+          Completa el formulario a continuación para generar un brief profesional,
+          claro y personalizado para tu próximo proyecto.
         </p>
       </header>
+
       <main className="flex-1 max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-2xl transition-all duration-300">
         <h2 className="text-gray-800 text-2xl font-bold mb-6">
           Paso {step + 1} de {steps.length}: {steps[step].title}

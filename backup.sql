@@ -5,7 +5,7 @@
 -- Dumped from database version 17.5
 -- Dumped by pg_dump version 17.5
 
--- Started on 2025-06-14 20:26:10
+-- Started on 2025-06-15 19:00:23
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -30,7 +30,7 @@ CREATE SCHEMA public;
 ALTER SCHEMA public OWNER TO pg_database_owner;
 
 --
--- TOC entry 4924 (class 0 OID 0)
+-- TOC entry 4928 (class 0 OID 0)
 -- Dependencies: 4
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: pg_database_owner
 --
@@ -76,7 +76,7 @@ CREATE SEQUENCE public.payments_id_seq
 ALTER SEQUENCE public.payments_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4925 (class 0 OID 0)
+-- TOC entry 4929 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: payments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -143,7 +143,7 @@ CREATE SEQUENCE public.projects_id_seq
 ALTER SEQUENCE public.projects_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4926 (class 0 OID 0)
+-- TOC entry 4930 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -164,7 +164,11 @@ CREATE TABLE public.users (
     role text DEFAULT 'client'::text,
     created_at timestamp without time zone DEFAULT now(),
     briefs_available integer DEFAULT 0,
-    briefs_renewal_date date
+    briefs_renewal_date date,
+    subscription_plan character varying(50) DEFAULT 'Básico'::character varying,
+    briefs_used integer DEFAULT 0,
+    subscription_renewal date DEFAULT CURRENT_DATE,
+    price_per_extra_brief integer DEFAULT 7 NOT NULL
 );
 
 
@@ -187,7 +191,7 @@ CREATE SEQUENCE public.users_id_seq
 ALTER SEQUENCE public.users_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4927 (class 0 OID 0)
+-- TOC entry 4931 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -220,7 +224,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- TOC entry 4916 (class 0 OID 24596)
+-- TOC entry 4920 (class 0 OID 24596)
 -- Dependencies: 220
 -- Data for Name: payments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -230,7 +234,7 @@ COPY public.payments (id, project_id, payment_date, payment_amount, payment_meth
 
 
 --
--- TOC entry 4914 (class 0 OID 24587)
+-- TOC entry 4918 (class 0 OID 24587)
 -- Dependencies: 218
 -- Data for Name: projects; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -252,22 +256,26 @@ COPY public.projects (id, client_name, project_name, start_date, delivery_date, 
 
 
 --
--- TOC entry 4918 (class 0 OID 24608)
+-- TOC entry 4922 (class 0 OID 24608)
 -- Dependencies: 222
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.users (id, name, email, password, role, created_at, briefs_available, briefs_renewal_date) FROM stdin;
-2	Usuario Dos	usuario2@example.com	$2b$10$hFtWjTq89YbVHJXTa0vF.eI7ZZjzPZXYe/0OYkzKQmZwwzvMfRl3C	user	2025-06-13 00:18:11.417119	0	\N
-4	pepe	as@gmail.com	$2b$10$byyb2W0w.vU2nHMz3x/ffu3sXTrhLCzlpSb1pZVTi5eUykRshEMNG	client	2025-06-13 18:49:59.126162	0	\N
-5	p	ds@gmail.com	$2b$10$/zYc2FrQ54ZHarcSyTTmIOvnpvE4iq1CNpL2IFwWC2ggWsr95pRQ2	client	2025-06-14 18:04:20.526111	0	\N
-1	Usuario Uno	usuario1@example.com	$2b$10$KIXcJ7N3QDy8Y7pYXrtw7uB0l0P5P7b8mR2gK9upK0pU3ZqoxxZna	admin	2025-06-13 00:18:11.417119	3	\N
-3	a	alvaroscriado@gmail.com	$2b$10$uBidgXTDTVUr3II7pme.V.DB7D7wi9jeXq/Nq5TJ8723AutXhdB7i	client	2025-06-13 18:42:53.680278	1	\N
+COPY public.users (id, name, email, password, role, created_at, briefs_available, briefs_renewal_date, subscription_plan, briefs_used, subscription_renewal, price_per_extra_brief) FROM stdin;
+2	Usuario Dos	usuario2@example.com	$2b$10$hFtWjTq89YbVHJXTa0vF.eI7ZZjzPZXYe/0OYkzKQmZwwzvMfRl3C	user	2025-06-13 00:18:11.417119	0	\N	Básico	0	2025-06-14	7
+4	pepe	as@gmail.com	$2b$10$byyb2W0w.vU2nHMz3x/ffu3sXTrhLCzlpSb1pZVTi5eUykRshEMNG	client	2025-06-13 18:49:59.126162	0	\N	Básico	0	2025-06-14	7
+5	p	ds@gmail.com	$2b$10$/zYc2FrQ54ZHarcSyTTmIOvnpvE4iq1CNpL2IFwWC2ggWsr95pRQ2	client	2025-06-14 18:04:20.526111	0	\N	Básico	0	2025-06-14	7
+1	Usuario Uno	usuario1@example.com	$2b$10$KIXcJ7N3QDy8Y7pYXrtw7uB0l0P5P7b8mR2gK9upK0pU3ZqoxxZna	admin	2025-06-13 00:18:11.417119	3	\N	Básico	0	2025-06-14	7
+3	a	alvaroscriado@gmail.com	$2b$10$uBidgXTDTVUr3II7pme.V.DB7D7wi9jeXq/Nq5TJ8723AutXhdB7i	client	2025-06-13 18:42:53.680278	1	\N	Básico	0	2025-06-14	7
+6	juan	j@gmail.com	$2b$10$nuroYw4gEsr2kYLgBsKyNOWa2UrO/3M4D1dsU3NyjUw5M9xc6apX6	client	2025-06-14 20:38:03.227991	0	\N	Básico	0	2025-06-14	7
+7	sda	das@gmail.com	$2b$10$XHZvSP2Tg42Ui7OaNnfZ1OkDenoApGqgn7zciTyacFkKf8kL92mkC	client	2025-06-14 21:57:11.770865	0	\N	Básico	0	2025-06-14	7
+8	as	ssss@gmail.com	$2b$10$p6ear6Ok6VGHas5HYubHhObZ5DV9FfUgkIz/HkYQBOEtIfJfA0Z7W	client	2025-06-14 22:02:42.136787	0	\N	Básico	0	2025-06-14	7
+9	pp	uup@gmail.com	$2b$10$KkmIRhdDxPzEa/z20yaCSO0q1ouOhjqXzPoCe7fq08V7RYn3ok4Kq	client	2025-06-15 13:20:01.929334	10	\N	Pro	0	2025-06-15	5
 \.
 
 
 --
--- TOC entry 4928 (class 0 OID 0)
+-- TOC entry 4932 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: payments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -276,7 +284,7 @@ SELECT pg_catalog.setval('public.payments_id_seq', 1, false);
 
 
 --
--- TOC entry 4929 (class 0 OID 0)
+-- TOC entry 4933 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: projects_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -285,16 +293,16 @@ SELECT pg_catalog.setval('public.projects_id_seq', 14, true);
 
 
 --
--- TOC entry 4930 (class 0 OID 0)
+-- TOC entry 4934 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 5, true);
+SELECT pg_catalog.setval('public.users_id_seq', 9, true);
 
 
 --
--- TOC entry 4761 (class 2606 OID 24601)
+-- TOC entry 4765 (class 2606 OID 24601)
 -- Name: payments payments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -303,7 +311,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- TOC entry 4759 (class 2606 OID 24594)
+-- TOC entry 4763 (class 2606 OID 24594)
 -- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -312,7 +320,7 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- TOC entry 4763 (class 2606 OID 24619)
+-- TOC entry 4767 (class 2606 OID 24619)
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -321,7 +329,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4765 (class 2606 OID 24617)
+-- TOC entry 4769 (class 2606 OID 24617)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -330,7 +338,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4767 (class 2606 OID 24602)
+-- TOC entry 4771 (class 2606 OID 24602)
 -- Name: payments payments_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -339,7 +347,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- TOC entry 4766 (class 2606 OID 24620)
+-- TOC entry 4770 (class 2606 OID 24620)
 -- Name: projects projects_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -347,7 +355,7 @@ ALTER TABLE ONLY public.projects
     ADD CONSTRAINT projects_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
--- Completed on 2025-06-14 20:26:10
+-- Completed on 2025-06-15 19:00:23
 
 --
 -- PostgreSQL database dump complete

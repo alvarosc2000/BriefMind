@@ -1,6 +1,7 @@
 'use client';
+
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';  // Importa el router
+import { useRouter } from 'next/navigation';
 
 async function loginUser(name: string, password: string) {
   const res = await fetch('http://localhost:5000/api/users/login', {
@@ -31,7 +32,7 @@ async function registerUser(name: string, email: string, password: string) {
 }
 
 export default function LoginRegister() {
-  const router = useRouter();  // Instancia el router
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -54,10 +55,19 @@ export default function LoginRegister() {
       if (isLogin) {
         const data = await loginUser(name, password);
         setMessage(`Bienvenido ${data.user.name}`);
+
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user_id', data.user.id.toString());
         localStorage.setItem('user_name', data.user.name);
-        localStorage.setItem('user_id', data.user.id);
-        router.push('/BriefForm');
+        localStorage.setItem('user_brief', data.user.briefs_available.toString());
+        localStorage.setItem('subscription_plan', data.user.subscription_plan);
+
+        // Redirigir según condición needsPayment
+        if (data.user.needsPayment) {
+          router.push('/Checkout');
+        } else {
+          router.push('/BriefForm');
+        }
       } else {
         const data = await registerUser(name, email, password);
         setMessage('Usuario registrado con éxito. Ahora puedes iniciar sesión.');

@@ -166,21 +166,51 @@ export default function Landing() {
             </article>
           ))}
         </div>
-
-        <button
-          disabled={!selectedPlan || loading}
-          onClick={handleCheckout}
-          className={`mt-10 px-10 py-4 rounded-full font-semibold transition ${
-            selectedPlan
-              ? "bg-cyan-500 hover:bg-cyan-600 text-gray-900"
-              : "bg-gray-600 text-gray-400 cursor-not-allowed"
-          }`}
-          aria-disabled={!selectedPlan || loading}
-          aria-label="Pagar con Stripe"
-        >
-          {loading ? "Procesando..." : "Pagar con Stripe"}
-        </button>
       </section>
+
+      {/* Opiniones de clientes */}
+        <section
+          className="relative z-10 bg-[#16223B] py-20 px-6 md:px-20 lg:px-40 text-center"
+          id="opiniones"
+        >
+          <h2 className="text-3xl font-bold mb-6 select-none text-white">
+            Lo que opinan nuestros usuarios
+          </h2>
+          <p className="text-gray-300 max-w-2xl mx-auto mb-12 leading-relaxed select-none">
+            Profesionales independientes, consultores y equipos pequeños ya están transformando su forma de trabajar con BriefMind.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto text-left">
+            {[
+              {
+                name: "Ana Martínez",
+                role: "Brand Strategist",
+                text: "BriefMind me ha ahorrado horas de trabajo cada semana. Los briefs son claros, organizados y listos para presentar al cliente. Una herramienta imprescindible.",
+              },
+              {
+                name: "Carlos Gómez",
+                role: "Consultor de Marketing",
+                text: "Con el plan Pro puedo mantener todos mis briefs ordenados y bien estructurados. Mis clientes han notado la diferencia desde el primer documento.",
+              },
+              {
+                name: "Laura Ríos",
+                role: "Fundadora de Agencia Boutique",
+                text: "La opción de colaborar en equipo con BriefMind ha cambiado nuestra dinámica interna. Todo el equipo puede generar y compartir briefs fácilmente.",
+              },
+            ].map(({ name, role, text }) => (
+              <blockquote
+                key={name}
+                className="bg-[#0E1A38] p-6 rounded-lg shadow-md text-gray-300"
+              >
+                <p className="text-md italic mb-4">“{text}”</p>
+                <div className="font-semibold text-white">{name}</div>
+                <div className="text-sm text-gray-400">{role}</div>
+              </blockquote>
+            ))}
+          </div>
+        </section>
+
+
 
       {/* CTA final */}
       <section
