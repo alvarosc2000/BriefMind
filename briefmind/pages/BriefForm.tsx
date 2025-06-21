@@ -460,6 +460,15 @@ export default function ProjectBriefForm() {
         <h2 className="text-gray-800 text-2xl font-bold mb-6">
           Paso {step + 1} de {steps.length}: {steps[step].title}
         </h2>
+        
+                {/* Barra de progreso visual */}
+        <div className="w-full bg-gray-200 rounded-full h-3 mb-6 overflow-hidden">
+          <div
+            className="bg-blue-600 h-full transition-all duration-500"
+            style={{ width: `${((step + 1) / steps.length) * 100}%` }}
+          ></div>
+        </div>
+
         <form
           onSubmit={handleSubmit}
           className={`flex flex-col gap-6 ${
