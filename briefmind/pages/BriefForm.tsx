@@ -428,29 +428,29 @@ export default function ProjectBriefForm() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#132d81] p-4">
+    <div className="min-h-screen bg-[#0F172A] p-4">
       <header className="max-w-4xl mx-auto mt-16 mb-12 text-center text-white px-4">
         <h1 className="text-5xl font-extrabold mb-4 leading-tight">
           {userName ? `¡Bienvenido, ${userName}!` : "¡Hola! Comienza a crear tu brief"}
         </h1>
 
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-lg text-gray-300 mt-4">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-lg text-gray-800 mt-4">
           {typeof userBrief !== "undefined" && (
-            <div className="bg-[#1e2a47] px-5 py-3 rounded-xl shadow-md border border-cyan-500">
+            <div className="bg-[#1e2a47] px-5 py-3 rounded-xl shadow-md border border-cyan-500 text-white">
               <span className="font-semibold text-white">Briefs restantes:</span>{" "}
               {userBrief}
             </div>
           )}
 
           {userPlan && (
-            <div className="bg-[#1e2a47] px-5 py-3 rounded-xl shadow-md border border-cyan-500">
+            <div className="bg-[#1e2a47] px-5 py-3 rounded-xl shadow-md border border-cyan-500 text-white">
               <span className="font-semibold text-white">Plan actual:</span>{" "}
               {userPlan}
             </div>
           )}
         </div>
 
-        <p className="mt-6 text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
+        <p className="mt-6 text-xl text-gray-8000 leading-relaxed max-w-2xl mx-auto">
           Completa el formulario a continuación para generar un brief profesional,
           claro y personalizado para tu próximo proyecto.
         </p>
@@ -461,7 +461,7 @@ export default function ProjectBriefForm() {
           Paso {step + 1} de {steps.length}: {steps[step].title}
         </h2>
         
-                {/* Barra de progreso visual */}
+        {/* Barra de progreso visual */}
         <div className="w-full bg-gray-200 rounded-full h-3 mb-6 overflow-hidden">
           <div
             className="bg-blue-600 h-full transition-all duration-500"
@@ -542,7 +542,7 @@ function Input({
         {label}
       </label>
       <input
-        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
         id={name}
         name={name}
         type={type}
@@ -576,7 +576,7 @@ function Textarea({
         {label}
       </label>
       <textarea
-        className="border border-gray-300 rounded px-3 py-2 resize-y focus:outline-none focus:ring-2 focus:ring-blue-600"
+        className="border border-gray-300 rounded px-3 py-2 resize-y focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
         id={name}
         name={name}
         rows={4}
@@ -612,7 +612,7 @@ function Select({
       <select
         id={name}
         name={name}
-        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
         value={value}
         onChange={onChange}
       >
@@ -642,7 +642,7 @@ function CheckboxGroup({
 }) {
   return (
     <fieldset>
-      <legend className="mb-2 font-semibold text-gray-700">{label}</legend>
+      <legend className="mb-2 font-semibold text-black">{label}</legend>
       <div className="flex flex-wrap gap-4">
         {options.map((opt) => (
           <label
@@ -657,7 +657,7 @@ function CheckboxGroup({
               onChange={onChange}
               className="form-checkbox h-5 w-5 text-blue-600"
             />
-            <span className="ml-2">{opt}</span>
+            <span className="ml-2 text-black">{opt}</span>
           </label>
         ))}
       </div>

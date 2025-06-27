@@ -120,7 +120,7 @@ class UserController {
   }
 
   async updateUserPlan(req, res) {
-    const { id } = req.params;
+    const { userId } = req.params;
     const { plan } = req.body;
 
     try {
@@ -142,11 +142,12 @@ class UserController {
 
       const result = await db.query(
         `UPDATE users
-         SET briefs_available = $1, briefs_used = 0, price_per_extra_brief = $2, subscription_plan = $3
-         WHERE id = $4
-         RETURNING id, name, briefs_available, briefs_used, price_per_extra_brief, subscription_plan`,
-        [briefs_available, price_per_extra_brief, plan, id]
+        SET briefs_available = $1, briefs_used = 0, price_per_extra_brief = $2, subscription_plan = $3
+        WHERE id = $4
+        RETURNING id, name, briefs_available, briefs_used, price_per_extra_brief, subscription_plan`,
+        [briefs_available, price_per_extra_brief, plan, userId]
       );
+
 
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -168,34 +169,81 @@ class UserController {
     }
   }
 
+  
   async buyExtraBrief(req, res) {
-    const { id } = req.params;
+  const { userId } = req.params;
+  const { quantity } = req.body;
 
-    try {
-      const result = await db.query(
-        `UPDATE users
-         SET briefs_available = briefs_available + 1
-         WHERE id = $1
-         RETURNING briefs_available, briefs_used`,
-        [id]
-      );
+  const briefsToAdd = parseInt(quantity, 10) || 1; // Si no se envía cantidad, añade 1 por defecto
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
+  try {
+    const result = await db.query(
+      `UPDATE users
+       SET briefs_available = briefs_available + $1
+       WHERE id = $2
+       RETURNING briefs_available, briefs_used`,
+      [briefsToAdd, userId]
+    );
 
-      const user = result.rows[0];
-
-      res.status(200).json({
-        message: 'Brief extra comprado',
-        briefs_available: user.briefs_available,
-        user_brief: user.briefs_available - user.briefs_used,
-      });
-    } catch (err) {
-      console.error('Error al comprar brief extra:', err);
-      res.status(500).json({ message: 'Error al comprar brief extra' });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+
+    const user = result.rows[0];
+
+    res.status(200).json({
+      message: `Se compraron ${briefsToAdd} briefs extra`,
+      briefs_available: user.briefs_available,
+      briefs_used: user.briefs_used,
+      user_brief: user.briefs_available - user.briefs_used,
+    });
+  } catch (err) {
+    console.error('Error al comprar briefs extra:', err);
+    res.status(500).json({ message: 'Error al comprar briefs extra' });
   }
 }
+
+
+
+
+
+  async getUserPlan(req, res) {
+  const { userId } = req.params;
+
+  try {
+    const result = await db.query(
+      `SELECT subscription_plan, briefs_available, briefs_used, price_per_extra_brief
+       FROM users
+       WHERE id = $1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const user = result.rows[0];
+    const briefsRemaining = user.briefs_available - user.briefs_used;
+
+    res.status(200).json({
+      subscription_plan: user.subscription_plan,
+      briefs_available: user.briefs_available,
+      briefs_used: user.briefs_used,
+      user_brief: briefsRemaining,
+      price_per_extra_brief: user.price_per_extra_brief,
+      needsPayment: briefsRemaining <= 0,
+    });
+  } catch (err) {
+    console.error('Error al obtener plan del usuario:', err);
+    res.status(500).json({ message: 'Error al obtener plan del usuario' });
+  }
+}
+
+
+}
+
+
+
+
 
 module.exports = new UserController();

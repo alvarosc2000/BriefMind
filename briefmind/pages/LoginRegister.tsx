@@ -62,7 +62,6 @@ export default function LoginRegister() {
         localStorage.setItem('user_brief', data.user.briefs_available.toString());
         localStorage.setItem('subscription_plan', data.user.subscription_plan);
 
-        // Redirigir según condición needsPayment
         if (data.user.needsPayment) {
           router.push('/Checkout');
         } else {
@@ -88,9 +87,9 @@ export default function LoginRegister() {
 
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 bg-[#1e2a47] w-full max-w-lg p-10 rounded-2xl shadow-xl backdrop-blur-md"
+        className="relative z-10 bg-[#1e2a47] w-full max-w-lg p-10 rounded-2xl shadow-2xl backdrop-blur-xl border border-cyan-600/30 transition-all duration-300"
       >
-        <h2 className="text-4xl font-bold text-center mb-8 select-none">
+        <h2 className="text-4xl font-extrabold text-center mb-8 select-none text-cyan-400">
           {isLogin ? 'Iniciar sesión' : 'Crear cuenta'}
         </h2>
 
@@ -101,7 +100,7 @@ export default function LoginRegister() {
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full text-lg px-5 py-4 bg-[#0F172A] text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full text-lg px-5 py-4 bg-[#0F172A] text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all duration-200"
           />
 
           {!isLogin && (
@@ -112,7 +111,7 @@ export default function LoginRegister() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="w-full text-lg px-5 py-4 bg-[#0F172A] text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full text-lg px-5 py-4 bg-[#0F172A] text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all duration-200"
               />
               <input
                 type="password"
@@ -120,7 +119,7 @@ export default function LoginRegister() {
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 required
-                className="w-full text-lg px-5 py-4 bg-[#0F172A] text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full text-lg px-5 py-4 bg-[#0F172A] text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all duration-200"
               />
             </>
           )}
@@ -131,16 +130,20 @@ export default function LoginRegister() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            className="w-full text-lg px-5 py-4 bg-[#0F172A] text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full text-lg px-5 py-4 bg-[#0F172A] text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all duration-200"
           />
         </div>
 
-        {error && <p className="text-red-500 mt-4 text-sm">{error}</p>}
-        {message && <p className="text-green-400 mt-4 text-sm">{message}</p>}
+        {error && (
+          <p className="text-red-500 mt-4 text-sm animate-shake">{error}</p>
+        )}
+        {message && (
+          <p className="text-green-400 mt-4 text-sm animate-fadeIn">{message}</p>
+        )}
 
         <button
           type="submit"
-          className="w-full mt-8 bg-cyan-500 hover:bg-cyan-600 text-gray-900 text-lg font-semibold py-4 rounded-xl transition duration-300"
+          className="w-full mt-8 bg-cyan-500 hover:bg-cyan-600 text-gray-900 text-lg font-semibold py-4 rounded-xl shadow-md transition-transform hover:scale-105 duration-300"
         >
           {isLogin ? 'Iniciar sesión' : 'Registrarse'}
         </button>
@@ -161,6 +164,29 @@ export default function LoginRegister() {
           </button>
         </p>
       </form>
+
+      <style jsx>{`
+        @keyframes shake {
+          0% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          50% { transform: translateX(4px); }
+          75% { transform: translateX(-4px); }
+          100% { transform: translateX(0); }
+        }
+
+        .animate-shake {
+          animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease-out;
+        }
+      `}</style>
     </main>
   );
 }
@@ -172,6 +198,7 @@ function AnimatedBackground() {
       className="fixed inset-0 -z-10 bg-gradient-to-tr from-cyan-900 via-blue-900 to-indigo-900 animate-gradient-x"
       style={{
         backgroundSize: '400% 400%',
+        animation: 'gradientMove 15s ease infinite',
       }}
     />
   );

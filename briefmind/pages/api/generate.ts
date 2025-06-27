@@ -58,7 +58,7 @@ Eres un asistente experto en marketing digital. Genera un brief profesional, cla
 - Enlaces de branding o identidad visual: ${data.branding_links}
 - Formato final requerido: ${data.final_format}
 
-El brief debe estar en español, ser claro y fácil de entender. Organiza la información en secciones con títulos claros.
+El brief debe estar en ingles, ser claro y fácil de entender.Si algun campo no se detecta se omitira en la salida. Organiza la información en secciones con títulos claros.
 `;
 
     const completion = await openai.chat.completions.create({
